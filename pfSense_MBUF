@@ -1,0 +1,17 @@
+#!/usr/local/bin/bash
+
+# Written by Sebastian Bosse (C) 2022
+# Tested with pfSense 22.05 / CheckMK 2.1.0p6 / cmk-agent 2.1.0i1 (FreeBSD)
+
+# Getting total MBUF
+mbuf_stat=$(netstat -m)
+mbuf=$mbuf_stat
+mbuf=${mbuf#*)}
+mbuf=${mbuf#*/}
+mbuf=${mbuf#*/}
+mbuf=${mbuf%%/*}
+
+# Convert Value to Number
+mbuf=$((mbuf))
+
+echo "P \"MBUF\" soo_mbuf_total=$mbuf;600000;900000;0;1000000"
