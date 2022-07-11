@@ -3,15 +3,41 @@
 # Written by Sebastian Bosse (C) 2022
 # Tested with pfSense 22.05 / CheckMK 2.1.0p6 / cmk-agent 2.1.0i1 (FreeBSD)
 
-# Getting total MBUF
-mbuf_stat=$(netstat -m)
-mbuf=$mbuf_stat
-mbuf=${mbuf#*)}
-mbuf=${mbuf#*/}
-mbuf=${mbuf#*/}
-mbuf=${mbuf%%/*}
+# Getting Values MBUF-Cluster
+mbuf_cluster_current=$(netstat -m | grep "mbuf clusters in use" | awk -F/ '{print $1}')
+mbuf_cluster_cache=$(netstat -m | grep "mbuf clusters in use" | awk -F/ '{print $2}')
+mbuf_cluster_total=$(netstat -m | grep "mbuf clusters in use" | awk -F/ '{print $3}')
+mbuf_cluster_max=$(netstat -m | grep "mbuf clusters in use" | awk -F/ '{print $4}' | awk -F' ' '{print $1}')
 
-# Convert Value to Number
-mbuf=$((mbuf))
+mbuf_cluster_warn=$((mbuf_cluster_max / 100 * 80))
+mbuf_cluster_crit=$((mbuf_cluster_max / 100 * 90))
 
-echo "P \"MBUF\" soo_mbuf_total=$mbuf;600000;900000;0;1000000"
+# Getting Values 4k-MBUF-Cluster
+mbuf_4k_cluster_current=$(netstat -m | grep "4k (page size) jumbo clusters in use" | awk -F/ '{print $1}')
+mbuf_4k_cluster_cache=$(netstat -m | grep "4k (page size) jumbo clusters in use" | awk -F/ '{print $2}')
+mbuf_4k_cluster_total=$(netstat -m | grep "4k (page size) jumbo clusters in use" | awk -F/ '{print $3}')
+mbuf_4k_cluster_max=$(netstat -m | grep "4k (page size) jumbo clusters in use" | awk -F/ '{print $4}' | awk -F' ' '{print $1}')
+
+mbuf_4k_cluster_warn=$((mbuf_4k_cluster_max / 100 * 80))
+mbuf_4k_cluster_crit=$((mbuf_4k_cluster_max / 100 * 90))
+
+# Getting Values 9k-MBUF-Cluster
+mbuf_9k_cluster_current=$(netstat -m | grep "9k jumbo clusters in use" | awk -F/ '{print $1}')
+mbuf_9k_cluster_cache=$(netstat -m | grep "9k jumbo clusters in use" | awk -F/ '{print $2}')
+mbuf_9k_cluster_total=$(netstat -m | grep "9k jumbo clusters in use" | awk -F/ '{print $3}')
+mbuf_9k_cluster_max=$(netstat -m | grep "9k jumbo clusters in use" | awk -F/ '{print $4}' | awk -F' ' '{print $1}')
+
+mbuf_9k_cluster_warn=$((mbuf_9k_cluster_max / 100 * 80))
+mbuf_9k_cluster_crit=$((mbuf_9k_cluster_max / 100 * 90))
+
+# Getting Values 16k-MBUF-Cluster
+mbuf_16k_cluster_current=$(netstat -m | grep "16k jumbo clusters in use" | awk -F/ '{print $1}')
+mbuf_16k_cluster_cache=$(netstat -m | grep "16k jumbo clusters in use" | awk -F/ '{print $2}')
+mbuf_16k_cluster_total=$(netstat -m | grep "16k jumbo clusters in use" | awk -F/ '{print $3}')
+mbuf_16k_cluster_max=$(netstat -m | grep "16k jumbo clusters in use" | awk -F/ '{print $4}' | awk -F' ' '{print $1}')
+
+mbuf_16k_cluster_warn=$((mbuf_16k_cluster_max / 100 * 80))
+mbuf_16k_cluster_crit=$((mbuf_16k_cluster_max / 100 * 90))
+
+# CheckMK Output
+echo "P \"MBUF\" soo_mbuf_cluster=$mbuf_cluster_total;$mbuf_cluster_warn;$mbuf_cluster_crit;0;$mbuf_cluster_max|soo_mbuf_4k_cluster=$mbuf_4k_cluster_total;$mbuf_4k_cluster_warn;$mbuf_4k_cluster_crit;0;$mbuf_4k_cluster_max|soo_mbuf_9k_cluster=$mbuf_9k_cluster_total;$mbuf_9k_cluster_warn;$mbuf_9k_cluster_crit;0;$mbuf_9k_cluster_max|soo_mbuf_16k_cluster=$mbuf_16k_cluster_total;$mbuf_16k_cluster_warn;$mbuf_16k_cluster_crit;0;$mbuf_16k_cluster_max"
