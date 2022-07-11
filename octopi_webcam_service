@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Written by Sebastian Bosse (C) 2022
+# Tested with CheckMK 2.1.0p6 / cmk-agent 2.1.0p6 (Linux)
+
+# Getting webcamd.service Status
+webcam_service=$(systemctl status webcamd.service | grep "Active:" | awk -F' ' '{print $2 " " $3}')
+
+# Check Service Status
+case "$webcam_service" in
+    *"running"*) echo "0 \"Webcamd Service\" - $webcam_service";;
+    *) echo "2 \"Webcamd Service\" - $webcam_service";;
+esac
